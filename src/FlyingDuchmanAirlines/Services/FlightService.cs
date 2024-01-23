@@ -20,8 +20,6 @@ namespace FlyingDuchmanAirlines.Services
         {
             Queue<Flight> flights = _flightRepository.GetFlights();
 
-
-
             foreach (Flight flight in flights)
             {
                 Airport originAirport;
