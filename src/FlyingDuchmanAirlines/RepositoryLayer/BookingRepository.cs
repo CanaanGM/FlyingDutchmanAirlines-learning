@@ -2,6 +2,9 @@
 using FlyingDuchmanAirlines.DatabaseLayer.Models;
 using FlyingDuchmanAirlines.Exceptions;
 
+using System.Reflection;
+using System.Runtime.CompilerServices;
+
 namespace FlyingDuchmanAirlines.RepositoryLayer
 {
     public class BookingRepository
@@ -12,8 +15,16 @@ namespace FlyingDuchmanAirlines.RepositoryLayer
         {
             _context = context;
         }
-
-        public async Task CreateBooking(int customerID, int flightNumber)
+        // see compiler method inlining in code c# like a pro chapter 10 - 10.3.3 mocking a class with moq
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public BookingRepository()
+        {
+            if (Assembly.GetExecutingAssembly().FullName == Assembly.GetCallingAssembly().FullName)
+            {
+                throw new Exception("This constructor should only be used for testing!");
+            }
+        }
+        public virtual async Task CreateBooking(int customerID, int flightNumber)
         {
 
             if (!customerID.IsPositive() || !flightNumber.IsPositive())

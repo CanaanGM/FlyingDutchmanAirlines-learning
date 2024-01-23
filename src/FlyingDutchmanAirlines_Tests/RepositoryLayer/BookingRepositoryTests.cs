@@ -2,7 +2,6 @@
 using FlyingDuchmanAirlines.DatabaseLayer.Models;
 using FlyingDuchmanAirlines.Exceptions;
 using FlyingDuchmanAirlines.RepositoryLayer;
-
 using FlyingDutchmanAirlines_Tests.Stubs;
 
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlyingDutchmanAirlines_Tests
+namespace FlyingDutchmanAirlines_Tests.RepositoryLayer
 {
     [TestClass]
     public class BookingRepositoryTests

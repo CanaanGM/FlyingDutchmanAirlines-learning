@@ -4,7 +4,7 @@ using FlyingDuchmanAirlines.Exceptions;
 using FlyingDuchmanAirlines.RepositoryLayer;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlyingDutchmanAirlines_Tests
+namespace FlyingDutchmanAirlines_Tests.RepositoryLayer
 {
     [TestClass]
     public class CustomerRepositoryTests
@@ -50,7 +50,7 @@ namespace FlyingDutchmanAirlines_Tests
         [ExpectedException(typeof(CustomerNotFoundException))]
         public async Task CreateCustomer_Failure_NameContainsInvalidCharacter(char invalidCharacter)
         {
-            await  _repository.CreateCustomer("Ruby " + invalidCharacter);
+            await _repository.CreateCustomer("Ruby " + invalidCharacter);
         }
 
         [TestMethod]

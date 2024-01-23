@@ -9,4 +9,9 @@ namespace FlyingDuchmanAirlines.Exceptions
     public class FlightNotFoundException : Exception
     {
     }
+
+    public class FlightsNotFoundException : Exception
+    {
+
+    }
 }

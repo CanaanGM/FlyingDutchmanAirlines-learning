@@ -2,12 +2,11 @@
 using FlyingDuchmanAirlines.DatabaseLayer.Models;
 using FlyingDuchmanAirlines.Exceptions;
 using FlyingDuchmanAirlines.RepositoryLayer;
-
 using FlyingDutchmanAirlines_Tests.Stubs;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace FlyingDutchmanAirlines_Tests
+namespace FlyingDutchmanAirlines_Tests.RepositoryLayer
 {
     [TestClass]
     public class AirportRepositoryTest
@@ -82,7 +81,7 @@ namespace FlyingDutchmanAirlines_Tests
             Airport airport = await _repository.GetAirportByID(airportId);
             Assert.IsNotNull(airport);
 
-            Airport DbAirport =  _context.Airports.First(x => x.AirportId == airport.AirportId);
+            Airport DbAirport = _context.Airports.First(x => x.AirportId == airport.AirportId);
             Assert.AreEqual(airport.City, DbAirport.City);
             Assert.AreEqual(airport.Iata, DbAirport.Iata);
         }

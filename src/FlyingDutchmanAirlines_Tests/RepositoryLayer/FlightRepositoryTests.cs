@@ -2,12 +2,11 @@
 using FlyingDuchmanAirlines.DatabaseLayer.Models;
 using FlyingDuchmanAirlines.Exceptions;
 using FlyingDuchmanAirlines.RepositoryLayer;
-
 using FlyingDutchmanAirlines_Tests.Stubs;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace FlyingDutchmanAirlines_Tests
+namespace FlyingDutchmanAirlines_Tests.RepositoryLayer
 {
     [TestClass]
     public class FlightRepositoryTests
@@ -23,6 +22,9 @@ namespace FlyingDutchmanAirlines_Tests
                   .UseInMemoryDatabase("FlyingDutchman")
                   .Options;
 
+            _context = new FlyingDutchmanFlightContext_Stub(dbContextOptions);
+
+
             Flight flight = new Flight
             {
                 Origin = 1,
@@ -31,10 +33,17 @@ namespace FlyingDutchmanAirlines_Tests
             };
 
 
-            _context = new FlyingDutchmanFlightContext_Stub(dbContextOptions);
 
+            Flight flight2 = new Flight
+            {
+                FlightNumber = 2,
+                Origin = 2,
+                Destination = 2
+            };
             _context.Flights.Add(flight);
+            _context.Flights.Add(flight2);
             await _context.SaveChangesAsync();
+
 
             _repository = new FlightRepository(_context);
             Assert.IsNotNull(_repository);
@@ -43,7 +52,7 @@ namespace FlyingDutchmanAirlines_Tests
         [TestMethod]
         public async Task GetFlightByFlightNumber_Success()
         {
-            Flight flight = await _repository.GetFlightByFlightNumber(1,1,2);
+            Flight flight = await _repository.GetFlightByFlightNumber(1);
             Assert.IsNotNull(flight);
 
             Flight dbFlight = _context.Flights.First(f => f.FlightNumber == 1);
@@ -55,18 +64,23 @@ namespace FlyingDutchmanAirlines_Tests
 
         }
 
+
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task GetFlightByFlightId_Failure_InvalidOriginAirport()
+        public async Task GetFlights_Success()
         {
-            await _repository.GetFlightByFlightNumber(1, -1, 1);
+            var flights =  _repository.GetFlights();
+
+            Assert.IsNotNull(flights);
+            Assert.AreEqual(2, flights.Count);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task GetFlightByFlightId_Failure_InvalidDestinationAirport()
+        [ExpectedException(typeof(FlightsNotFoundException))]
+        public async Task GetFlights_Failure_NoFlightsInDatabase()
         {
-            await _repository.GetFlightByFlightNumber(1, 1, -1);
+            _context.Database.EnsureDeleted();
+
+            _ = _repository.GetFlights();
 
         }
 
@@ -74,7 +88,7 @@ namespace FlyingDutchmanAirlines_Tests
         [ExpectedException(typeof(ArgumentException))]
         public async Task GetFlightByFlightId_Failure_InvalidFlightNumber()
         {
-            await _repository.GetFlightByFlightNumber(-1, 1, 1);
+            await _repository.GetFlightByFlightNumber(-1);
 
         }
 
@@ -82,7 +96,7 @@ namespace FlyingDutchmanAirlines_Tests
         [ExpectedException(typeof(FlightNotFoundException))]
         public async Task GetFlightByFlightNumber_Failure_DatabaseError()
         {
-            await _repository.GetFlightByFlightNumber(6, 6, 6);
+            await _repository.GetFlightByFlightNumber(6);
         }
     }
 }

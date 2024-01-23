@@ -4,6 +4,9 @@ using FlyingDuchmanAirlines.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 
+using System.Reflection;
+using System.Runtime.CompilerServices;
+
 namespace FlyingDuchmanAirlines.RepositoryLayer
 {
     public class CustomerRepository
@@ -13,6 +16,15 @@ namespace FlyingDuchmanAirlines.RepositoryLayer
         public CustomerRepository(FlyingDutchmanAirlinesContext context)
         {
             _context = context;
+        }
+        // see compiler method inlining in code c# like a pro chapter 10 - 10.3.3 mocking a class with moq
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public CustomerRepository()
+        {
+            if (Assembly.GetExecutingAssembly().FullName == Assembly.GetCallingAssembly().FullName)
+            {
+                throw new Exception("This constructor should only be used for testing!");
+            }
         }
 
         public async Task<bool> CreateCustomer(string name)
@@ -37,11 +49,12 @@ namespace FlyingDuchmanAirlines.RepositoryLayer
             return true;
         }
 
-        public async Task<Customer> GetCustomerByName(string name)
+        public virtual async Task<Customer> GetCustomerByName(string name)
         {
             if (IsInvalidCustomerName(name)) throw new CustomerNotFoundException();
 
-            return await _context.Customers.FirstOrDefaultAsync(x=> x.Name == name) ?? throw new CustomerNotFoundException();
+            return await _context.Customers.FirstOrDefaultAsync(x=> x.Name == name)
+                ?? throw new CustomerNotFoundException();
 
 
 
