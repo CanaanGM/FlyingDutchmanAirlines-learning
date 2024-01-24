@@ -2,6 +2,7 @@
 using FlyingDuchmanAirlines.Services;
 using FlyingDuchmanAirlines.Views;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using System;
@@ -24,6 +25,9 @@ namespace FlyingDuchmanAirlines.ControllerLayer
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetFlights()
         {
             try
@@ -48,6 +52,9 @@ namespace FlyingDuchmanAirlines.ControllerLayer
         }
 
         [HttpGet("{flightNumber}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetFlightByFlightNumber(int flightNumber)
         {
             try
