@@ -45,9 +45,10 @@ insert into Flight values (1,2), (2,1)
 insert into Booking values (1, 1)
 ```
 
-- run:
+- run to scaffold the models for the database (not needed as they're already generated):
     -  `dotnet ef dbcontext scaffold [CONNECTION STRING] [DATABASE DRIVER] [FLAGS]`
 	- `dotnet ef dbcontext scaffold [connection string] Microsoft.EntityFrameworkCore.[SqlServer ||other driver] --context-dir DatabaseLayer --output-dir DatabaseLay  
 er/Models`
+
 
 - build, run -> go to `http://[host]:[port]/swagger`
