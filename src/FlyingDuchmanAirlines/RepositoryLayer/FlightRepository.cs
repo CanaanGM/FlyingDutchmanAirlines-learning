@@ -47,7 +47,12 @@ namespace FlyingDuchmanAirlines.RepositoryLayer
         public virtual Queue<Flight> GetFlights()
         {
             Queue<Flight> flights = new Queue<Flight>();
-            _context.Flights.ForEachAsync(x => flights.Enqueue(x));
+            //_context.Flights.ForEachAsync(x => flights.Enqueue(x));
+
+            foreach (Flight flight in _context.Flights)
+            {
+                flights.Enqueue(flight);
+            }
 
             return flights.Count > 0 ? flights : throw new FlightsNotFoundException() ;
         }

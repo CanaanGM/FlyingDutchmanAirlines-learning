@@ -1,5 +1,6 @@
 ﻿using FlyingDuchmanAirlines.DatabaseLayer;
 using FlyingDuchmanAirlines.DatabaseLayer.Models;
+using FlyingDuchmanAirlines.Exceptions;
 using FlyingDuchmanAirlines.RepositoryLayer;
 using FlyingDuchmanAirlines.Services;
 using FlyingDuchmanAirlines.Views;
@@ -33,7 +34,37 @@ namespace FlyingDutchmanAirlines_Tests.ServiceLayer
             _mockFlightRepository = new Mock<FlightRepository>();
 
             _mockAirportRepository = new Mock<AirportRepository>();
+            Queue<Flight> mockReturn = new Queue<Flight>(1);
 
+            Flight flightForQueue = new Flight
+            {
+                FlightNumber = 123,
+                Origin = 32,
+                Destination = 92
+            };
+            _mockAirportRepository
+                .Setup(repo =>
+                    repo.GetAirportByID(32))
+                .ReturnsAsync(
+                    new Airport
+                    {
+                        AirportId = 32,
+                        City = "Baldurs Gate",
+                        Iata = "BDG"
+                    }
+                );
+
+            _mockAirportRepository
+                .Setup(repo =>
+                    repo.GetAirportByID(92))
+                .ReturnsAsync(
+                    new Airport
+                    {
+                        AirportId = 92,
+                        City = "Divieon",
+                        Iata = "DVN"
+                    }
+                );
 
             Flight flight = new Flight
             {
@@ -49,6 +80,19 @@ namespace FlyingDutchmanAirlines_Tests.ServiceLayer
                 Origin = 2,
                 Destination = 2
             };
+
+            mockReturn.Enqueue(flightForQueue);
+
+            _mockFlightRepository
+                .Setup(repo =>
+                    repo.GetFlights())
+                .Returns(mockReturn);
+
+            _mockFlightRepository
+                .Setup(repo =>
+                    repo.GetFlightByFlightNumber(148))
+                .Returns(Task.FromResult(flightForQueue));
+
             _context.Flights.Add(flight);
             _context.Flights.Add(flight2);
             await _context.SaveChangesAsync();
@@ -103,5 +147,60 @@ namespace FlyingDutchmanAirlines_Tests.ServiceLayer
             }
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(FlightNotFoundException))]
+        public async Task GetFlights_Failure_RepositoryException()
+        {
+
+            _mockAirportRepository
+                .Setup(repo =>
+                    repo.GetAirportByID(32))
+                .ThrowsAsync(new FlightNotFoundException());
+
+            FlightService service = new FlightService(_mockFlightRepository.Object, _mockAirportRepository.Object);
+
+            await foreach (FlightView _ in service.GetFlights())
+            {
+                ;
+            }
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task GetFlights_Failure_ReqularException()
+        {
+
+
+            _mockAirportRepository
+                    .Setup(repo =>
+                        repo.GetAirportByID(32))
+                    .ThrowsAsync(new NullReferenceException());
+
+            FlightService service = new FlightService(_mockFlightRepository.Object, _mockAirportRepository.Object);
+
+            await foreach (FlightView _ in service.GetFlights())
+            {
+                ;
+            }
+        }
+
+
+        [TestMethod]
+        public async Task GetFlightByFlightNumber_Success()
+        {
+
+
+            FlightService service = new FlightService(_mockFlightRepository.Object, _mockAirportRepository.Object);
+
+            FlightView flightView = await service.GetFlightByFlightNumber(148);
+
+            Assert.IsNotNull(flightView);
+            Assert.AreEqual(flightView.FlightNumber, "148");
+            Assert.AreEqual(flightView.Origin.City, "Baldurs Gate");
+            Assert.AreEqual(flightView.Origin.Code, "BDG");
+            Assert.AreEqual(flightView.Destination.City, "Divieon");
+            Assert.AreEqual(flightView.Destination.Code, "DVN");
+        }
     }
 }
